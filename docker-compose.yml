@@ -19,7 +19,7 @@ services:
   rabbitmq_meeting_books:
     container_name: rabbitmq_meeting_books
     volumes:
-      - rabbitmq_data2:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
     build:
       context: .
       dockerfile: Dockerfile
@@ -71,4 +71,4 @@ services:
 volumes:
   rethinkdb_data: null
   redis: null
-  rabbitmq_data2: null
+  rabbitmq_data: null

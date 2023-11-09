@@ -170,6 +170,8 @@ tomli==2.0.1
 toolz @ file:///croot/toolz_1667464077321/work
 torch==1.13.1
 torchvision==0.14.1
+flask_login
+flask_wtf
 tornado @ file:///opt/conda/conda-bld/tornado_1662061693373/work
 tqdm @ file:///opt/conda/conda-bld/tqdm_1664392687731/work
 transformers==4.25.1

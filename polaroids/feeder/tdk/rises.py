@@ -1,11 +1,8 @@
 import logging
 
 import dotenv
-
 from flask import Flask
-from polariods.feeder.tdk import prime
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager
+from prime import *
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
@@ -14,7 +11,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
 dotenv.load_dotenv()
 
 app = Flask(__name__)
@@ -27,10 +23,10 @@ logger.info("NEW INSTANCE is created")
 def index(path):
     return path
 
-
-app.add_url_rule("/login", methods=["POST"], view_func=prime.login)
-app.add_url_rule("/logout", methods=["POST"], view_func=prime.logout)
-app.add_url_rule("/register", methods=["POST"], view_func=prime.register)
+app.add_url_rule("/get_post", methods=["GET"], view_func=get_post)
+# app.add_url_rule("/login", methods=["POST"], view_func=prime.login)
+# app.add_url_rule("/logout", methods=["POST"], view_func=prime.logout)
+# app.add_url_rule("/register", methods=["POST"], view_func=prime.register)
 
 
 if __name__ == "__main__":
