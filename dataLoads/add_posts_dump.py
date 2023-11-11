@@ -2,9 +2,7 @@ import ast
 from pathlib import Path
 
 import rethinkdb as r
-
-
-
+import uuid
 import ast
 from pathlib import Path
 from typing import List, Union
@@ -13,11 +11,9 @@ import numpy as np
 import random_name
 import simplejson
 
-data_dir = Path.home() /"pythonProject14"/ "feeder"
+data_dir = Path.home() / "pythonProject14" / "feeder" / "datasets"
 
-print('rerewr===',data_dir)
-
-filename = Path("/oik.csv")
+filename = Path("/oikSmall.csv")
 
 # file = open('/home/alexey/pythonProject2/mockinghack/back/dataset/purchases.csv','r')
 #
@@ -32,19 +28,19 @@ filename = Path("/oik.csv")
 
 
 def get_data(
-    data_dir: Union[Path, str],
-    filename: str,
-    embedding_field="embedding",
-    load_embedding=True,
-    ext=".json",
-    parse_meta: bool = False,
-    lazy: bool = False,
-    sep: str = ",",
-    encoding: str = "utf-8-sig",
-    as_record: bool = False,
-    rename_columns: dict = None,
-    engine: str = "pandas",
-    **kwargs,
+        data_dir: Union[Path, str],
+        filename: str,
+        embedding_field="embedding",
+        load_embedding=True,
+        ext=".json",
+        parse_meta: bool = False,
+        lazy: bool = False,
+        sep: str = ",",
+        encoding: str = "utf-8-sig",
+        as_record: bool = False,
+        rename_columns: dict = None,
+        engine: str = "pandas",
+        **kwargs,
 ):
     assert engine in ("pandas", "polars")
     if engine == "polars":
@@ -111,7 +107,7 @@ def get_data(
     yield docs
 
 
-df = next(get_data(data_dir=data_dir,filename=filename.stem, ext=filename.suffix, engine="pandas", sep=","))
+df = next(get_data(data_dir=data_dir, filename=filename.stem, ext=filename.suffix, engine="pandas", sep=","))
 df = df.fillna('')
 arr = df.to_dict(orient="records")
 
@@ -122,13 +118,10 @@ if not rdb.db_list().contains('meetingsBook').run(conn):
     rdb.db_create('meetingsBook').run(conn)
 
 if not rdb.db('meetingsBook').table_list().contains('posts').run(conn):
-    rdb.db('meetingsBook').table_create('meetingsBook').run(conn)
-
+    rdb.db('meetingsBook').table_create('posts',primary_key='idx').run(conn)
 
 for row in arr:
-    rdb.db('meetingsBook').table('posts').insert({'label': row["label"], 'context': row["context"]}).run(conn)
-
-
+    id = uuid.uuid4()
+    rdb.db('meetingsBook').table('posts').insert({'context': row["context"], 'book_id': row["book_id"],'author_id': row["author_id"],'id': str(id)}).run(conn)
 
 __all__ = ["get_data"]
-

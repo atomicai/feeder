@@ -3,13 +3,16 @@
 import bcrypt
 import dotenv
 import random
+import rethinkdb as r
 # from rises import *
 from flask import request
 from flask_login import logout_user, LoginManager
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
-
+from flask import jsonify, request, send_file, session
+rdb = r.RethinkDB()
+conn = rdb.connect(host='localhost', port=28015)
 dotenv.load_dotenv()
 
 # login_manager = LoginManager(app)
@@ -79,9 +82,24 @@ dotenv.load_dotenv()
 #     submit = SubmitField('Login')
 
 def get_post():
-    foo = ['a', 'b', 'c', 'd', 'e']
-    return random.choice(foo)
+    book_ids = []
+    posts = []
 
+    books_info = rdb.db('meetingsBook').table('books').pluck("id").run(conn)
+    for book_id in books_info:
+        book_ids.append(book_id["id"])
+    random_book_id = random.choice(book_ids)
+
+    posts_info = list(rdb.db('meetingsBook').table('posts').filter({'book_id': random_book_id}).run(conn))
+    for post in posts_info:
+        posts.append(post)
+
+    random_post = random.choice(posts)
+
+    [author_name] = list(rdb.db('meetingsBook').table('authors').filter({'id': random_post['author_id']}).run(conn))
+    [book_name] = list(rdb.db('meetingsBook').table('books').filter({'id': random_post['book_id']}).run(conn))
+
+    return jsonify({'id':random_post['id'],"author_name": author_name['name'],"book_name":book_name['label'],'post':random_post['context']})
 # def login():
 #     message = ''
 #     if request.method == 'POST':
